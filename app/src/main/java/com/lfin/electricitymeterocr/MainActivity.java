@@ -122,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "이미지 가져오기 실패");
 
             }
+
+            if(bitmap != null) {
+//                textView.setText(resultStr);
+                imageView.setImageBitmap(bitmap);
+            }
         }
     }
 }
