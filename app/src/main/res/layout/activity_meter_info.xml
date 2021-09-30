@@ -17,16 +17,18 @@
         android:textSize="20sp"
         android:text="전력량계량기"
         android:layout_marginTop="20dp" />
-    <LinearLayout
+
+    <!-- 진행상황 -->
+    <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    </LinearLayout>
+        android:id="@+id/downloadView" />
 
+    <!--  목록  -->
     <ListView
-        android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:id="@+id/listView" />
 
 
 
