@@ -25,11 +25,10 @@
         android:id="@+id/downloadView" />
 
     <!--  목록  -->
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/listView" />
-
-
 
 </LinearLayout>

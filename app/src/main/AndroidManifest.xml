@@ -3,6 +3,8 @@
     package="com.lfin.electricitymeterocr">
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,13 +14,13 @@
         android:theme="@style/Theme.ElectricityMeterOCR"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".MeterInfoActivity"
+            android:exported="true" />
+        <activity
             android:name=".PreprocessingImageActivity"
             android:exported="true" />
         <activity
             android:name=".MeterInfoDetailActivity"
-            android:exported="true" />
-        <activity
-            android:name=".MeterInfoActivity"
             android:exported="true" />
         <activity
             android:name=".MainActivity"
