@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lfin.electricitymeterocr">
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 카메라 권한 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 파일 권한 -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- 카메라 권한 -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 웹 권한 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -11,6 +15,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ElectricityMeterOCR"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".CameraActivity"
+            android:exported="true" />
+        <activity
+            android:name=".GalleryActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MeterCameraActivity"
+            android:exported="true" />
+        <activity
+            android:name=".BarcodeActivity"
+            android:exported="true" />
         <activity
             android:name=".MeterInfoActivity"
             android:exported="true" />

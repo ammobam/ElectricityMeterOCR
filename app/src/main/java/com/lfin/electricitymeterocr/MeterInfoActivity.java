@@ -69,8 +69,8 @@ public class MeterInfoActivity extends AppCompatActivity {
             try {
                 Log.e("인터넷 연결", "연결시도");
                 // 웹 Server url설정
-                URL url = new URL("http://172.30.1.54:5000/list");
-//                URL url = new URL("http://172.30.1.3:5000/list ");
+//                URL url = new URL("http://172.30.1.54:5000/list");
+                URL url = new URL("http://172.30.1.3:5000/list ");
                 // URL객체를 HttpURLConnection 으로 형 변환
                 HttpURLConnection con = (HttpURLConnection)url.openConnection();
 

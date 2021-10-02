@@ -3,6 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_barcode.xml" value="0.2046875" />
+        <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_camera.xml" value="0.2046875" />
+        <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_gallery.xml" value="0.2046875" />
+        <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_main.xml" value="0.2046875" />
+        <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_meter_camera.xml" value="0.2046875" />
         <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_meter_info_detail.xml" value="0.2046875" />
         <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/item_cell.xml" value="0.2046875" />
         <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_listview.xml" value="0.19947916666666668" />

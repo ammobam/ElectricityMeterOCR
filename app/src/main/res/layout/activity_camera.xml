@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".CameraActivity"
     android:orientation="vertical"
     android:padding="10dp">
 
@@ -22,28 +22,21 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="5"/>
+        android:layout_weight="8"/>
 
-    <Button
-        android:id="@+id/galleryBtn"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:text="이미지 불러오기"
-        android:layout_weight="1"
-        />
     <Button
         android:id="@+id/cameraBtn"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:text="이미지 활영"
         android:layout_weight="1"
-        android:text="사진 촬영"
         />
     <Button
-        android:id="@+id/infoBtn"
+        android:id="@+id/insertaBtn"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="조회"
+        android:text="저장"
         />
 
 </LinearLayout>
