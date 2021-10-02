@@ -2,6 +2,7 @@ package com.lfin.electricitymeterocr;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -11,8 +12,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.lfin.electricitymeterocr.DTO.ElectricityMeterDTO;
 import com.lfin.electricitymeterocr.DTO.ModemDTO;
@@ -167,5 +170,22 @@ public class MeterInfoActivity extends AppCompatActivity {
 
         // Thread를 만들어서 실행
         new ItemThread().start();
+
+        // 리스트 중 아이템 하나를 클릭했을 때의 처리
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String serialCd = itemList.get(position).getSerialCd();
+//                Toast.makeText(MeterInfoActivity.this ,serialCd,Toast.LENGTH_LONG).show();
+                getInfoFrom(serialCd);
+            }
+        });
     }
+
+    private void getInfoFrom(String serial_id){
+        Intent intent = new Intent(MeterInfoActivity.this , MeterInfoDetailActivity.class);
+        intent.putExtra("serial_id", serial_id);
+        startActivity(intent);
+    }
+
 }

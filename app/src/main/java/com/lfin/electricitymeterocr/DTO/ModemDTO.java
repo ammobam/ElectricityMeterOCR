@@ -9,7 +9,9 @@ public class ModemDTO implements Serializable {
     // 제조 코드
     private String serialCd;
     // 모뎀저장날짜
-    private Date modemSaveDate;
+    private String modemSaveDate;
+
+    private String modemFilename;
 
     private ElectricityMeterDTO electricityMeterDTO;
 
@@ -29,13 +31,17 @@ public class ModemDTO implements Serializable {
         this.serialCd = serialCd;
     }
 
-    public Date getModemSaveDate() {
+    public String getModemSaveDate() {
         return modemSaveDate;
     }
 
-    public void setModemSaveDate(Date modemSaveDate) {
+    public void setModemSaveDate(String modemSaveDate) {
         this.modemSaveDate = modemSaveDate;
     }
+
+    public String getModemFilename() { return modemFilename; }
+
+    public void setModemFilename(String modemFilename) { this.modemFilename = modemFilename;}
 
     public ElectricityMeterDTO getElectricityMeterDTO() {
         return electricityMeterDTO;
@@ -47,7 +53,7 @@ public class ModemDTO implements Serializable {
 
     public ModemDTO(){}
 
-    public ModemDTO(String modemCd, String serialCd, Date modemSaveDate) {
+    public ModemDTO(String modemCd, String serialCd, String modemSaveDate) {
         this.modemCd = modemCd;
         this.serialCd = serialCd;
         this.modemSaveDate = modemSaveDate;

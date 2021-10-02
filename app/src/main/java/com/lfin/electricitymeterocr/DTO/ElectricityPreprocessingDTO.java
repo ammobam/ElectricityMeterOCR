@@ -1,6 +1,6 @@
 package com.lfin.electricitymeterocr.DTO;
 
-public class ElectricityProprocessingDTO {
+public class ElectricityPreprocessingDTO {
     // 시퀀스
     private int preId;
     // 제조 코드
@@ -42,7 +42,9 @@ public class ElectricityProprocessingDTO {
         this.electricityMeterDTO = electricityMeterDTO;
     }
 
-    public ElectricityProprocessingDTO(int preId, String serialCd, String preFilename) {
+    public ElectricityPreprocessingDTO(){}
+
+    public ElectricityPreprocessingDTO(int preId, String serialCd, String preFilename) {
         this.preId = preId;
         this.serialCd = serialCd;
         this.preFilename = preFilename;

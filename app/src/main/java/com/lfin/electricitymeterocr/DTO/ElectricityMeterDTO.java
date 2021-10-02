@@ -98,15 +98,16 @@ public class ElectricityMeterDTO implements Serializable {
                 ", regionCd='" + regionCd + '\'' +
                 ", electricitySaveDate='" + electricitySaveDate + '\'' +
                 ", delFlag='" + delFlag + '\'' +
-                ", modemDTO=" + modemDTO +
+                ", electDTOs=" + electDTOs.toString() +
+                ", modemDTO=" + modemDTO.toString() +
                 '}';
     }
 
-    private List<ElectricityProprocessingDTO> electDTOs = new ArrayList<>();
+    private List<ElectricityPreprocessingDTO> electDTOs = new ArrayList<>();
 
-    public ElectricityMeterDTO addModemDTO(ElectricityProprocessingDTO electDTO) {
+    public ElectricityMeterDTO setElectPreDTO(ElectricityPreprocessingDTO electDTO) {
         electDTOs.add(electDTO);
-        electDTO.setElectricityMeterDTO(this);
+//        electDTO.setElectricityMeterDTO(this);
         return this;
     }
 
