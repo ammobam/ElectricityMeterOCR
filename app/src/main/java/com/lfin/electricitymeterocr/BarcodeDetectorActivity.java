@@ -9,9 +9,14 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
@@ -26,7 +31,16 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
 
 public class BarcodeDetectorActivity extends AppCompatActivity {
 
@@ -64,6 +78,154 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
         initialiseDetectorsAndSources();
     }
 
+    //결과를 출력할 핸들러
+    Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            String insertResult;
+            switch(msg.what) {
+                case 0:
+                    insertResult = (String)msg.obj;
+                    break;
+                case 1:
+                    boolean result = (Boolean)msg.obj;
+                    if (result == true) {
+                        insertResult = "삽입 성공";
+                    }else {
+                        insertResult = "삽입 실패";
+                    }
+                    break;
+                default:
+                    insertResult = "결과 알 수 없음";
+                    break;
+            }
+            Snackbar.make(getWindow().getDecorView().getRootView(), insertResult,
+                    Snackbar.LENGTH_SHORT).show();
+        }
+    };
+
+
+    //TODO: 이미지를 캡쳐하는 기능구현시 파일 전송 추가
+    //바코드 정보를 전송할 thread
+    class barcodeThread extends Thread {
+        String json;
+
+        @Override
+        public void run(){
+            Message message = new Message();
+            try{
+                //다운로드 받을 주소 생성
+//                URL url = new URL("http://172.20.10.7:5000/meterimage");
+                URL url = new URL("http://10.0.2.2:5000/insertbarcode");
+                //URL에 연결
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setUseCaches(false);
+                con.setConnectTimeout(30000);
+                //con.setReadTimeout(10000);
+
+                //파일을 제외한 파라미터 만들기
+                Date date = new Date();
+                java.text.SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+                //파일을 제외한 파라미터 만들기
+                //보낼 데이터 키
+                String[] dataName = {"modem_cd","updatedate"};
+                //보낼 데이터 값
+                String[] data = {barcodeText.getText().toString(),sdf.format(date)};
+
+
+                // boundary생성 실행할때마다 다른값을 할당 : 파일 업로드가 있을 때는 반드시 생성
+                String lineEnd = "\r\n";
+                String boundary = UUID.randomUUID().toString();
+
+                // 연결 객체 옵션 설정
+                con.setRequestMethod("POST"); //전송방식 설정
+                con.setDoOutput(true);
+                con.setDoInput(true);
+
+
+                // 파일 업로드가 있는 경우 설정
+//                con.setRequestProperty("ENCTYPE", "multipart/form-data");
+//                con.setRequestProperty("Content-Type","multipart/form-data;boundary="+boundary);
+
+                //파라미터 생성
+                String delimiter = "--" + boundary + lineEnd; // --androidupload\r\n
+                StringBuffer postDataBuilder = new StringBuffer();
+                for(int i=0;i<data.length;i++){
+                    postDataBuilder.append(delimiter);
+                    postDataBuilder.append("Content-Disposition: form-data; name=\"" + dataName[i] +"\""+lineEnd+lineEnd+data[i]+lineEnd);
+                }
+
+                //파일이름 설정
+                //서버에서 변경할예정
+//                String fileName = "newMeterImage.jpg";
+
+                // 파일이 존재할 때에만 생성
+//                if(fileName!=null){
+//                    postDataBuilder.append(delimiter);
+//                    postDataBuilder.append("Content-Disposition: form-data; name=\"" + "pictureurl" + "\";filename=\"" + fileName +"\"" + lineEnd);
+//                }
+
+                //파라미터를 서버에 전송
+                DataOutputStream ds = new DataOutputStream(con.getOutputStream());
+                ds.write(postDataBuilder.toString().getBytes());
+
+
+                //파일 전송과 body 종료
+                //파일이 있는 경우에는 파일을 전송
+//                if(fileName!=null){
+//                    ds.writeBytes(lineEnd);
+//
+//                    BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+//                    Bitmap bitmap = drawable.getBitmap();
+//                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//                    byte[] buffer = stream.toByteArray();
+//                    ds.write(buffer, 0, buffer.length);
+//
+//                    ds.writeBytes(lineEnd);
+//                    ds.writeBytes(lineEnd);
+//                    ds.writeBytes("--" + boundary + "--" + lineEnd); // requestbody end
+//
+//                }
+                //파일이 없는 경우에는 body의 종료만 생성
+//                else {
+//                    ds.writeBytes(lineEnd);
+//                    ds.writeBytes("--" + boundary + "--" + lineEnd); // requestbody end
+//                }
+
+                ds.flush();
+                ds.close();
+                //문자열을 다운로드 받기 위한 스트림을 생성
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        con.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                //문자열을 읽어서 저장
+                while (true) {
+                    String line = br.readLine();
+                    if (line == null)
+                        break;
+                    sb.append(line + "\n");
+                }
+                //사용한 스트림과 연결 해제
+                br.close();
+                con.disconnect();
+                json = sb.toString();
+                Log.e("result", json);
+
+            }catch(Exception e){
+                Log.e("삽입 예외", e.getMessage());
+                message.obj = "삽입 에러로 파라미터 전송에 실패했거나 다운로드 실패\n서버를 확인하거나 파라미터 전송 부분을 확인하세요";
+                message.what = 0;
+                handler.sendMessage(message);
+
+            }
+
+
+        }
+    }
+
+
     private void insertBarcodeDataFrom() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -79,14 +241,17 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
             builder.setNegativeButton("취소",new DialogInterface.OnClickListener(){
                 @Override
                 public void onClick(DialogInterface dialog, int id){
-                    Toast.makeText(getApplicationContext(), "Cancel Click", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(getWindow().getDecorView().getRootView(), "Cancel Click",
+                            Snackbar.LENGTH_SHORT).show();
                 }
             });
 
             builder.setPositiveButton("저장",new DialogInterface.OnClickListener(){
                 @Override
                 public void onClick(DialogInterface dialog, int id){
-                    Toast.makeText(getApplicationContext(), "Save Click", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(getWindow().getDecorView().getRootView(), "Save Click",
+                            Snackbar.LENGTH_SHORT).show();
+                    new BarcodeDetectorActivity.barcodeThread().start();
                 }
             });
 

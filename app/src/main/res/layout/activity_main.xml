@@ -14,8 +14,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColor="#000000"
-        android:textSize="20sp"
-        android:text=""
+        android:textSize="30sp"
+        android:text="전력계량기 텍스트 인식"
         android:layout_marginTop="20dp" />
 
     <ImageView
@@ -23,14 +23,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4"
-        android:layout_margin="150dp"
+        android:layout_gravity="center"
+        android:layout_margin="80dp"
         android:src="@raw/icon_phone"/>
 
     <Button
         android:id="@+id/galleryBtn"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:text="갤러리 이미지 선택"
+        android:text="갤러리 이미지 텍스트인식"
         android:layout_weight="2"
         />
     <Button
@@ -38,15 +39,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:text="사진 촬영"
+        android:text="촬영사진 텍스트 인식"
         />
     <Button
         android:id="@+id/infoBtn"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:text="조회"
-        android:layout_marginBottom="50dp"
+        android:text="목록 조회"
+        android:layout_marginBottom="10dp"
         />
 
 </LinearLayout>
