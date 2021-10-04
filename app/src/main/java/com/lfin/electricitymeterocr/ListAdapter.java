@@ -66,7 +66,8 @@ public class ListAdapter extends BaseAdapter {
         public void run(){
             try{
                 // 이미지 다운로드를 스트림 생성
-                InputStream inputStream = new URL("http://172.30.1.54:5000/listimagedownload/" + imagename).openStream();
+//                InputStream inputStream = new URL("http://172.30.1.54:5000/listimagedownload/" + imagename).openStream();
+                InputStream inputStream = new URL("http://10.0.2.2:5000/listimagedownload/" + imagename).openStream();
                 // 이미지 다운로드
                 Bitmap bit = BitmapFactory.decodeStream(inputStream);
                 inputStream.close();

@@ -10,11 +10,18 @@
         <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_meter_camera.xml" value="0.2046875" />
         <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_meter_info_detail.xml" value="0.2046875" />
         <entry key="..\:/Users/admin/StudioProjects/ElectricityMeterOCR/app/src/main/res/layout/item_cell.xml" value="0.2046875" />
+        <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_barcode.xml" value="0.2046875" />
+        <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_barcode_detector.xml" value="0.20364583333333333" />
+        <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_camera.xml" value="0.2046875" />
+        <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_gallery.xml" value="0.2046875" />
         <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_listview.xml" value="0.19947916666666668" />
         <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_main.xml" value="0.1539855072463768" />
+        <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_meter_camera.xml" value="0.2046875" />
         <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_meter_info.xml" value="0.1539855072463768" />
         <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_meter_info_detail.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_preprocessing_image.xml" value="0.1" />
+        <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/activity_test2.xml" value="0.2109375" />
+        <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/fragment_photo.xml" value="0.2046875" />
         <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/layout_listveiw.xml" value="0.19947916666666668" />
         <entry key="..\:/Users/yujap/AndroidStudioProjects/ElectricityMeterOCR/app/src/main/res/layout/meter_cell.xml" value="0.1" />
       </map>

@@ -27,6 +27,8 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,6 +49,7 @@ public class GalleryActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private TextView textView;
+    private TextView filenameView;
     private Button galleryBtn;
     private Button insertaBtn;
 
@@ -66,6 +69,8 @@ public class GalleryActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
+        filenameView = findViewById(R.id.filenameView);
+
     }
 
     private void getImageFromGallery(){
@@ -91,8 +96,8 @@ public class GalleryActivity extends AppCompatActivity {
 
         }else{
             message.obj = "이미지를 선택하세요";
+            message.what = 0;
             handler.sendMessage(message);
-            return;
         }
 
     }
@@ -112,7 +117,7 @@ public class GalleryActivity extends AppCompatActivity {
                     if (result == true) {
                         insertResult = "삽입 성공";
                     }else {
-                           insertResult = "삽입 실패";
+                        insertResult = "삽입 실패";
                     }
                     break;
                 default:
@@ -156,6 +161,8 @@ public class GalleryActivity extends AppCompatActivity {
 //                textView.setText(resultStr);
                 imageView.setImageBitmap(bitmap);
 
+                String fileName = getFileName(selectedImage);
+                filenameView.setText(fileName);
 
             }
         }
@@ -163,62 +170,71 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
 
+
     // 이미지를 업로드 할 Thread 클래스
     class galleryThread extends Thread {
+        String json;
+
+        @Override
         public void run(){
-            try {
+            Message message = new Message();
+            try{
                 //다운로드 받을 주소 생성
-                URL url = new URL("http://172.30.1.3:5000/imageupload");
+//                URL url = new URL("http://172.20.10.7:5000/meterimage");
+                URL url = new URL("http://10.0.2.2:5000/meterimage");
                 //URL에 연결
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                //updatedate 의 파라미터 값 만들기
+
+                //파일을 제외한 파라미터 만들기
+
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
+                String[] dataName = {"updatedate"};
+
                 //파일을 제외한 파라미터 만들기
+                String[] data = {sdf.format(date)};
+
+
+                // boundary생성 실행할때마다 다른값을 할당 : 파일 업로드가 있을 때는 반드시 생성
                 String lineEnd = "\r\n";
                 String boundary = UUID.randomUUID().toString();
 
                 // 연결 객체 옵션 설정
-                con.setDoInput(true);
-                con.setDoOutput(true);
-                con.setUseCaches(false);
                 con.setRequestMethod("POST");
-                con.setConnectTimeout(30000);
+                con.setReadTimeout(10000);
+                con.setConnectTimeout(10000);
+                con.setDoOutput(true);
+                con.setDoInput(true);
                 con.setUseCaches(false);
 
-                //파일 업로드가 있는 경우 설정
+                // 파일 업로드가 있는 경우 설정
                 con.setRequestProperty("ENCTYPE", "multipart/form-data");
-                con.setRequestProperty("Content-Type", "multipart/formdata;boundary=" + boundary);
-
-                String delimiter = "--" + boundary + lineEnd;
-                StringBuilder postDataBuilder = new StringBuilder();
-
-                //업로드할 파일이름 생성
-                String fileName = getFileName(selectedImage);
-
-                Log.e(TAG, fileName);
-
-                // 파일이 존재할 때에만 pictureurl 파라미터를 생성
-                if (fileName != null) {
+                con.setRequestProperty("Content-Type","multipart/form-data;boundary="+boundary);
+                //파라미터 생성
+                String delimiter = "--" + boundary + lineEnd; // --androidupload\r\n
+                StringBuffer postDataBuilder = new StringBuffer();
+                for(int i=0;i<data.length;i++){
                     postDataBuilder.append(delimiter);
-                    postDataBuilder.append("Content-Disposition: form-data; name=\"pictureurl\";filename=\"" + fileName + "\"" + lineEnd);
+                    postDataBuilder.append("Content-Disposition: form-data; name=\"" + dataName[i] +"\""+lineEnd+lineEnd+data[i]+lineEnd);
+                }
+
+                String fileName = getFileName(selectedImage);
+                // 파일이 존재할 때에만 생성
+                if(fileName!=null){
+                    postDataBuilder.append(delimiter);
+                    postDataBuilder.append("Content-Disposition: form-data; name=\"" + "pictureurl" + "\";filename=\"" + fileName +"\"" + lineEnd);
                 }
 
                 //파라미터 전송
                 DataOutputStream ds = new DataOutputStream(con.getOutputStream());
                 ds.write(postDataBuilder.toString().getBytes());
-                ds.writeBytes(lineEnd);
-
-//                os.writeBytes(twoHyphens + boundary + lineEnd);
-//                os.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + uploadname +"\"" + lineEnd);
-//                os.writeBytes(lineEnd);
 
                 //파일 전송과 body 종료
                 //파일이 있는 경우에는 파일을 전송
-                if (fileName != null ) {
-
+                if(fileName!=null){
                     ds.writeBytes(lineEnd);
+
                     BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
                     Bitmap bitmap = drawable.getBitmap();
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -228,58 +244,42 @@ public class GalleryActivity extends AppCompatActivity {
 
                     ds.writeBytes(lineEnd);
                     ds.writeBytes(lineEnd);
-                    ds.writeBytes("--" + boundary + "--" + lineEnd);
+                    ds.writeBytes("--" + boundary + "--" + lineEnd); // requestbody end
 
-
-                } else {
-//
-                    ds.writeBytes(lineEnd);
-                    ds.writeBytes("--" + boundary + "--" + lineEnd);
-                    // requestbody end
                 }
-
+                //파일이 없는 경우에는 body의 종료만 생성
+                else {
+                    ds.writeBytes(lineEnd);
+                    ds.writeBytes("--" + boundary + "--" + lineEnd); // requestbody end
+                }
 
                 ds.flush();
                 ds.close();
-
-                int responseCode  = con.getResponseCode();
-                if(responseCode == HttpURLConnection.HTTP_OK)
-                {
-
-                    //결과 문자열을 다운로드 받기 위한 스트림을 생성
-                    BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    StringBuilder sb = new StringBuilder();
-
-                    //문자열을 읽어서 저장
-                    while (true) {
-                        String line = br.readLine();
-                        if(line == null) {
-                            break;
-                        }
-                        sb.append(line + "\n");
-                    }
-                    //사용한 스트림과 연결 해제
-                    br.close();
-                    con.disconnect();
-                    String json = sb.toString();
-                    Log.e("문자열", json);
-
+                //문자열을 다운로드 받기 위한 스트림을 생성
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        con.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                //문자열을 읽어서 저장
+                while (true) {
+                    String line = br.readLine();
+                    if (line == null)
+                        break;
+                    sb.append(line + "\n");
                 }
-
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                //Log.e("삽입 예외", e.getLocalizedMessage());
-                Message message = new Message();
+                //사용한 스트림과 연결 해제
+                br.close();
+                con.disconnect();
+                json = sb.toString();
+                Log.e("result", json);
+            }catch(Exception e){
+                Log.e("삽입 예외", e.getMessage());
                 message.obj = "삽입 에러로 파라미터 전송에 실패했거나 다운로드 실패\n서버를 확인하거나 파라미터 전송 부분을 확인하세요";
                 message.what = 0;
                 handler.sendMessage(message);
+
             }
-//
-//            }catch (Exception e){
-//                Log.e("다운로드 또는 파싱 실패", e.getLocalizedMessage());
-//            }
+
+
         }
     }
 

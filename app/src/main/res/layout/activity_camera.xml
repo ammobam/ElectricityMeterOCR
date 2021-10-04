@@ -18,12 +18,20 @@
         android:text="선택한 이미지"
         android:layout_marginTop="20dp" />
 
+
+    <LinearLayout
+        android:id="@+id/res_photo_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+    </LinearLayout>
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="8"/>
-
+        android:layout_weight="6"/>
     <Button
         android:id="@+id/cameraBtn"
         android:layout_width="match_parent"
@@ -32,11 +40,18 @@
         android:layout_weight="1"
         />
     <Button
-        android:id="@+id/insertaBtn"
+        android:id="@+id/insertBtn"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:text="저장"
+        android:layout_weight="1"
+        />
+    <Button
+        android:id="@+id/barcodeBtn"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="바코드 테스트"
+        android:layout_weight="1"
         />
 
 </LinearLayout>
