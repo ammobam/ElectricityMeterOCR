@@ -25,7 +25,7 @@
             android:layout_centerInParent="true"
             android:textColor="#000000"
             android:textSize="20sp"
-            android:text="전력량계량기 상세정보"
+            android:text="상세정보"
             android:layout_marginTop="20dp"/>
 
         <Button

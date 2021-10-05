@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -66,14 +67,14 @@ public class ViewHolderPage extends RecyclerView.ViewHolder {
                 imageView.setImageBitmap(bit);
                 imgSlideLayout.addView(imageView);
 
-
                 // 핸들러에 전송할 데이터 만들기
-                Message msg = new Message();
+//                Message msg = new Message();
+                Message msg = handler.obtainMessage();
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("bit", bit);
                 map.put("imgSlideLayout", imgSlideLayout);
                 msg.obj = map;
-
+                handler.post(this);
                 // Handler 에게 메시지 전송
                 handler.sendMessage(msg);
             }catch(Exception e){

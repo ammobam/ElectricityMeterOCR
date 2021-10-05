@@ -113,7 +113,8 @@ public class ListAdapter extends BaseAdapter {
         serialCd.setText(data.get(i).getSerialCd());
 
         TextView modemId = (TextView)returnView.findViewById(R.id.modem_id);
-        modemId.setText(data.get(i).getModemDTO().getModemCd());
+        String modemCd = data.get(i).getModemDTO().getModemCd();
+        modemId.setText((modemCd.equals(Common.NULL_STR)) ? Common.MODEM_INFO_NONE : modemCd);
 
         // 이미지 출력을 위한 부분
         ImageView imageView = (ImageView) returnView.findViewById(R.id.electricity_image);
