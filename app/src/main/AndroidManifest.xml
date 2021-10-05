@@ -36,13 +36,7 @@
             android:name=".GalleryActivity"
             android:exported="true" />
         <activity
-            android:name=".MeterCameraActivity"
-            android:exported="true" />
-        <activity
             android:name=".MeterInfoActivity"
-            android:exported="true" />
-        <activity
-            android:name=".PreprocessingImageActivity"
             android:exported="true" />
         <activity
             android:name=".MeterInfoDetailActivity"

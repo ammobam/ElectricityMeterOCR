@@ -3,6 +3,7 @@ package com.lfin.electricitymeterocr;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -20,9 +21,12 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -46,15 +50,24 @@ public class GalleryActivity extends AppCompatActivity {
     //gallery intent request code
     public static final int GALLERY_IMAGE_REQUEST_CODE = 1;
 
-
+    //이미지를 표시
     private ImageView imageView;
     private TextView textView;
+    //불러온 이미지 파일 이름
     private TextView filenameView;
+    //갤러리로 가기
     private Button galleryBtn;
+    //불러온 이미지 저장
     private Button insertaBtn;
 
+    //갤러리에서 불러온 이미지 정보
     Uri selectedImage;
-//    Bitmap sendBitmap;
+
+    // 진행 상황을 출력하 프로그래스 바
+    ProgressDialog progressDialog;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +94,17 @@ public class GalleryActivity extends AppCompatActivity {
 
     private void getInsertFrom(){
 
+        progressDialog = new ProgressDialog(GalleryActivity.this);
+        progressDialog.setMessage("ProgressDialog running...");
+        progressDialog.setCancelable(true);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
+
+        progressDialog.show();
+
+
         final Message message = new Message();
+
+
 
         //데이터 유효성 검사
         message.what = 0;
@@ -91,6 +114,7 @@ public class GalleryActivity extends AppCompatActivity {
 
 
         if(bitmap != null) {
+
             // Thread를 만들어서 실행
             new GalleryActivity.galleryThread().start();
 
@@ -108,6 +132,7 @@ public class GalleryActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             String insertResult;
+
             switch(msg.what) {
                 case 0:
                     insertResult = (String)msg.obj;
@@ -126,6 +151,8 @@ public class GalleryActivity extends AppCompatActivity {
             }
             Snackbar.make(getWindow().getDecorView().getRootView(), insertResult,
                     Snackbar.LENGTH_SHORT).show();
+            progressDialog.dismiss();
+
         }
     };
 
@@ -173,8 +200,6 @@ public class GalleryActivity extends AppCompatActivity {
 
     // 이미지를 업로드 할 Thread 클래스
     class galleryThread extends Thread {
-        String json;
-
         @Override
         public void run(){
             Message message = new Message();
@@ -218,7 +243,13 @@ public class GalleryActivity extends AppCompatActivity {
                     postDataBuilder.append("Content-Disposition: form-data; name=\"" + dataName[i] +"\""+lineEnd+lineEnd+data[i]+lineEnd);
                 }
 
-                String fileName = getFileName(selectedImage);
+                Date file_date = new Date();
+                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd_hhmmss");
+                String fileName = sdf2.format(file_date).toString() + ".jpg";
+                Log.e(TAG,"fileName::"+fileName);
+                //String fileName = getFileName(selectedImage); //이미지 원본 이름 파일로 변수 저장
+
+
                 // 파일이 존재할 때에만 생성
                 if(fileName!=null){
                     postDataBuilder.append(delimiter);
@@ -268,8 +299,20 @@ public class GalleryActivity extends AppCompatActivity {
                 //사용한 스트림과 연결 해제
                 br.close();
                 con.disconnect();
-                json = sb.toString();
-                Log.e("result", json);
+
+                JSONObject json =  new JSONObject(sb.toString());
+                String result = json.get("result").toString();
+                Log.e("result", json.toString());
+
+                if(result.equals("true") || result.equals("True")){
+                    message.obj = true;
+                }else{
+                    message.obj = false;
+                }
+
+                message.what = 1;
+                handler.sendMessage(message);
+
             }catch(Exception e){
                 Log.e("삽입 예외", e.getMessage());
                 message.obj = "삽입 에러로 파라미터 전송에 실패했거나 다운로드 실패\n서버를 확인하거나 파라미터 전송 부분을 확인하세요";
@@ -277,7 +320,6 @@ public class GalleryActivity extends AppCompatActivity {
                 handler.sendMessage(message);
 
             }
-
 
         }
     }
