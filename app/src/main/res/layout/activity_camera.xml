@@ -52,6 +52,7 @@
         android:layout_height="0dp"
         android:text="바코드 테스트"
         android:layout_weight="1"
+        android:visibility="invisible"
         />
 
 </LinearLayout>

@@ -8,6 +8,7 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -116,7 +117,7 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
             try{
                 //다운로드 받을 주소 생성
 //                URL url = new URL("http://172.20.10.7:5000/meterimage");
-                URL url = new URL("http://10.0.2.2:5000/insertbarcode");
+                URL url = new URL("http://172.30.1.3:5000/insertbarcode");
                 //URL에 연결
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setUseCaches(false);
@@ -127,11 +128,15 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
                 Date date = new Date();
                 java.text.SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
+
                 //파일을 제외한 파라미터 만들기
                 //보낼 데이터 키
-                String[] dataName = {"modem_cd","updatedate"};
+                String[] dataName = {"modemId","serialId","modemFilename","updatedate"};
                 //보낼 데이터 값
-                String[] data = {barcodeText.getText().toString(),sdf.format(date)};
+                String[] data = {barcodeText.getText().toString(),
+                        serialId,
+                        barcodeText.getText().toString(),
+                        sdf.format(date)};
 
 
                 // boundary생성 실행할때마다 다른값을 할당 : 파일 업로드가 있을 때는 반드시 생성
@@ -145,8 +150,8 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
 
 
                 // 파일 업로드가 있는 경우 설정
-//                con.setRequestProperty("ENCTYPE", "multipart/form-data");
-//                con.setRequestProperty("Content-Type","multipart/form-data;boundary="+boundary);
+                con.setRequestProperty("ENCTYPE", "multipart/form-data");
+                con.setRequestProperty("Content-Type","multipart/form-data;boundary="+boundary);
 
                 //파라미터 생성
                 String delimiter = "--" + boundary + lineEnd; // --androidupload\r\n
@@ -159,6 +164,7 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
                 //파일이름 설정
                 //서버에서 변경할예정
 //                String fileName = "newMeterImage.jpg";
+                String fileName = null;
 
                 // 파일이 존재할 때에만 생성
 //                if(fileName!=null){
@@ -173,26 +179,26 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
 
                 //파일 전송과 body 종료
                 //파일이 있는 경우에는 파일을 전송
-//                if(fileName!=null){
-//                    ds.writeBytes(lineEnd);
-//
+                if(fileName!=null){
+                    ds.writeBytes(lineEnd);
+
 //                    BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
 //                    Bitmap bitmap = drawable.getBitmap();
 //                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
 //                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
 //                    byte[] buffer = stream.toByteArray();
 //                    ds.write(buffer, 0, buffer.length);
-//
-//                    ds.writeBytes(lineEnd);
-//                    ds.writeBytes(lineEnd);
-//                    ds.writeBytes("--" + boundary + "--" + lineEnd); // requestbody end
-//
-//                }
+
+                    ds.writeBytes(lineEnd);
+                    ds.writeBytes(lineEnd);
+                    ds.writeBytes("--" + boundary + "--" + lineEnd); // requestbody end
+
+                }
                 //파일이 없는 경우에는 body의 종료만 생성
-//                else {
-//                    ds.writeBytes(lineEnd);
-//                    ds.writeBytes("--" + boundary + "--" + lineEnd); // requestbody end
-//                }
+                else {
+                    ds.writeBytes(lineEnd);
+                    ds.writeBytes("--" + boundary + "--" + lineEnd); // requestbody end
+                }
 
                 ds.flush();
                 ds.close();
@@ -229,8 +235,9 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
     private void insertBarcodeDataFrom() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
+        //barcodeText.setText("12345678");
         String saveText = (String)barcodeText.getText();
+
 
         if(!saveText.equals("BarcodeText")){
             builder.setTitle("바코드 정보 확인");
@@ -252,6 +259,8 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
                     Snackbar.make(getWindow().getDecorView().getRootView(), "Save Click",
                             Snackbar.LENGTH_SHORT).show();
                     new BarcodeDetectorActivity.barcodeThread().start();
+
+                    //backToHome();
                 }
             });
 
@@ -343,6 +352,11 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void backToHome(){
+        Intent intent = new Intent(BarcodeDetectorActivity.this , MainActivity.class);
+        startActivity(intent);
     }
 
 

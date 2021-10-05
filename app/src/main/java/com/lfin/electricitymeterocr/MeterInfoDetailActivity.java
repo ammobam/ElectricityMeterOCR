@@ -211,8 +211,23 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
             }
         });
 
+
+
+
         // MeterInfoActivity에서 전달한 serial_id 데이터 읽어오기
         String serialId = getIntent().getStringExtra("serial_id");
+
+
+        // homeBtn 클릭시 메인페이지로 이동
+        modemCameraBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MeterInfoDetailActivity.this, BarcodeDetectorActivity.class);
+                intent.putExtra("serial_id", serialId);
+                startActivity(intent);
+            }
+        });
+
 
         TextThread textThread = new TextThread();
         textThread.serialId = serialId;
