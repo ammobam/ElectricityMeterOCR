@@ -118,8 +118,7 @@ public class CameraActivity extends AppCompatActivity {
             Message message = new Message();
             try{
                 //다운로드 받을 주소 생성
-//                URL url = new URL("http://172.20.10.7:5000/meterimage");
-                URL url = new URL("http://10.0.2.2:5000/meterimage");
+                URL url = new URL(Common.SEVER_URL + "/meterimage");
                 //URL에 연결
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setUseCaches(false);

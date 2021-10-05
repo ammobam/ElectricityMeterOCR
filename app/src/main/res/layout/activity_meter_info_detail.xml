@@ -7,26 +7,43 @@
     tools:context=".MeterInfoDetailActivity"
     android:padding="10dp"
     android:orientation="vertical">
-    <Button
-        android:id="@+id/homeBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="home"
-        android:layout_weight="1"/>
-    <ImageView
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="3dp"
-        android:layout_marginEnd="3dp"
-        android:layout_weight="5"/>
-
-    <Button
-        android:id="@+id/modemCameraBtn"
-        android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:text="모뎀촬영 버튼"
-        android:layout_weight="1"
-        />
+        android:layout_weight="1">
+        <Button
+            android:id="@+id/homeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="home" />
+
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:text="전력량계량기 상세정보"
+            android:layout_marginTop="20dp"/>
+
+        <Button
+            android:id="@+id/modemCameraBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="모뎀 촬영"
+            />
+    </RelativeLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager2"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:orientation="horizontal"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -62,6 +79,7 @@
                 android:text="모뎀코드"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/text_layout"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
