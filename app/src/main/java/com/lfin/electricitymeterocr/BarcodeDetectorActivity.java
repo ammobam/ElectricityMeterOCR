@@ -116,8 +116,7 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
             Message message = new Message();
             try{
                 //다운로드 받을 주소 생성
-//                URL url = new URL("http://172.20.10.7:5000/meterimage");
-                URL url = new URL("http://172.30.1.3:5000/insertbarcode");
+                URL url = new URL(Common.SEVER_URL +"/insertbarcode");
                 //URL에 연결
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setUseCaches(false);
