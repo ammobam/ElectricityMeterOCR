@@ -32,9 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MeterInfoDetailActivity extends AppCompatActivity {
-    // 이미지 슬라이드를 위한 ViewPager 변수 선언
-
-
     ElectricityMeterDTO electDTO;
     private ViewPager2 viewPager2;
     private Button homeBtn;
@@ -44,38 +41,52 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
     private TextView typename;
     private TextView modemCd;
 
+    // 이미지 파일명을 저장할 리스트
+    private List<String> fileNameList;
+
     // 다운로드받은 문자열을 저장할 변수를 선언
     private String json;
     // 상세검색 결과를 저정할 변수
     Boolean result;
 
+    // 이미지를 서버에서 가져오고 슬라이드 설정을 해주는 ViewPagerAdapter 변수 선언
+    private ViewPagerAdapter viewPagerAdapter;
+
     // 화면 갱신을 위한 Handler 객체생성
     Handler handler = new Handler(Looper.getMainLooper()){
-        public void handleMessage(Message msg){
-            if(result == true){
+        public void handleMessage(Message msg) {
+            if (msg.what == 0) {
+                // textVeiw 갱신
+                if (result == true) {
+                    Log.e("handler 들어옴 ::","TextThread에 대한 Thread");
+                    // 이 곳에 화면 갱신 내용을 작성
+                    serialCd.setText(electDTO.getSerialCd());
+                    supplyType.setText(electDTO.getSupplyType());
+                    typename.setText(electDTO.getTypeName());
+                    modemCd.setText(electDTO.getModemDTO().getModemCd());
 
-                // 이 곳에 화면 갱신 내용을 작성
-                serialCd.setText(electDTO.getSerialCd());
-                supplyType.setText(electDTO.getSupplyType());
-                typename.setText(electDTO.getTypeName());
-                modemCd.setText(electDTO.getModemDTO().getModemCd());
-            }else {
-                Toast.makeText(MeterInfoDetailActivity.this, "상세 정보를 가져올 수 없습니다", Toast.LENGTH_LONG).show();
+
+                } else {
+                    Toast.makeText(MeterInfoDetailActivity.this, "상세 정보를 가져올 수 없습니다", Toast.LENGTH_LONG).show();
+                }
+                super.handleMessage(msg);
+            } else {
+                viewPagerAdapter.notifyDataSetChanged();
+                super.handleMessage(msg);
             }
-            super.handleMessage(msg);
         }
-
     };
+
     // 다운로드 받을 Thread 클래스
-    class DetailThread extends Thread {
+    class TextThread extends Thread {
         String serialId;
         public void run(){
             try {
-                Log.e("인터넷 연결", "연결시도");
+                Log.e("DetailView의 TextThread", " 인터넷 연결시도");
                 // 웹 Server url설정
-                URL url = new URL("http://172.30.1.54:5000/detail/" + serialId);
+                URL url = new URL(Common.SEVER_URL + "/detail/" + serialId);
 
-                // URL객체를 HttpURLConnection 으로 형 변환
+                // URL 객체를 HttpURLConnection 으로 형 변환
                 HttpURLConnection con = (HttpURLConnection)url.openConnection();
 
                 // 옵션 설정
@@ -117,15 +128,18 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
                 // result의 값을 추출
                 result = obj.getBoolean("result");
 
+                // 이미지 다운로드를 위해 이미지 파일명을 저장할 변수
+                fileNameList = new ArrayList<>();
                 // 전력량계량기 DTO 정보 설정
                 electDTO = new ElectricityMeterDTO();
                 electDTO.setSerialCd(data.getString("serial_cd"));
-                Log.e("제조번호  :: : : : : :",data.getString("serial_cd"));
                 electDTO.setTypeName(data.getString("typename"));
                 electDTO.setSupplyType(data.getString("supply_type"));
                 electDTO.setElectricityFilename(data.getString("electricity_filename"));
                 electDTO.setElectricitySaveDate(data.getString("electricity_save_date"));
 
+                // 전력량계량기 이미지 파일명 저장
+                fileNameList.add(electDTO.getElectricityFilename());
                 // 모뎀정보 DTO 정보 설정
                 ModemDTO modelDTO = new ModemDTO();
 
@@ -134,21 +148,34 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
                 modelDTO.setModemFilename(data.getString("modem_filename"));
                 modelDTO.setModemSaveDate(data.getString("modem_save_date"));
                 electDTO.setModemDTO(modelDTO);
-
+                // 모뎀 이미지 파일명 저장
+                fileNameList.add(modelDTO.getModemFilename());
                 // 전처리 과정 DTO 정보 설정
                 JSONArray preFileNameList = data.getJSONArray("pre_filenames");
 
                 // 배열을 순회
                 int i = 0;
-                Log.e("파일의 크기",String.valueOf(preFileNameList.length()));
 
                 while(i < preFileNameList.length()){
                     ElectricityPreprocessingDTO electPreDTO = new ElectricityPreprocessingDTO();
                     electPreDTO.setPreFilename( preFileNameList.getString(i));
+                    // 전처리 과정 이미지파일명 저장
+                    fileNameList.add(electPreDTO.getPreFilename());
                     electDTO.setElectPreDTO(electPreDTO);
                     i = i + 1;
                 }
                 Log.e("파싱 결과  :: : : : : :",electDTO.toString());
+                Log.e("handler에게 메시지 전송",String.valueOf(fileNameList));
+
+                Log.e("파일명 리스트 : ", String.valueOf(fileNameList));
+
+                // 이미지슬라이드 설정
+                viewPager2 = findViewById(R.id.viewPager2);
+                viewPagerAdapter = new ViewPagerAdapter(fileNameList, handler);
+                viewPager2.setAdapter(viewPagerAdapter);
+                // imageSlide를 가로로 설정
+                viewPager2.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+
                 // Handler 에게 메시지 전송
                 handler.sendEmptyMessage(0);
 
@@ -164,31 +191,35 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meter_info_detail);
-//        viewPager2 = findViewById(R.id.viewPager2);
+        // home 버튼
         homeBtn = findViewById(R.id.homeBtn);
-        modemCameraBtn = findViewById(R.id.modemCameraBtn);
+        // 이미지 슬라이드 뷰
+        viewPager2 = findViewById(R.id.viewPager2);
+        // textView
         serialCd = findViewById(R.id.serialCd);
         supplyType = findViewById(R.id.supplyType);
         typename = findViewById(R.id.typename);
         modemCd = findViewById(R.id.modemCd);
+        // 모뎀 촬영 버튼
+        modemCameraBtn = findViewById(R.id.modemCameraBtn);
 
         // homeBtn 클릭시 메인페이지로 이동
         homeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getInfoFrom();
+                backToHome();
             }
         });
 
         // MeterInfoActivity에서 전달한 serial_id 데이터 읽어오기
         String serialId = getIntent().getStringExtra("serial_id");
 
-        DetailThread detailThread = new DetailThread();
-        detailThread.serialId = serialId;
-        detailThread.start();
+        TextThread textThread = new TextThread();
+        textThread.serialId = serialId;
+        textThread.start();
 
     }
-    private void getInfoFrom(){
+    private void backToHome(){
         Intent intent = new Intent(MeterInfoDetailActivity.this , MainActivity.class);
         startActivity(intent);
     }
