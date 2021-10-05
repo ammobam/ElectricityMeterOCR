@@ -63,11 +63,20 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
                     serialCd.setText(electDTO.getSerialCd());
                     supplyType.setText(electDTO.getSupplyType());
                     typename.setText(electDTO.getTypeName());
-                    modemCd.setText(electDTO.getModemDTO().getModemCd());
 
+                    String modemCdStr = electDTO.getModemDTO().getModemCd();
+                    // 모뎀정보가 등록 모뎀촬영버튼표시여부
+                    int cameraBtnOnOff = View.INVISIBLE;
+
+                    if (modemCdStr.equals(Common.NULL_STR) == true) {
+                        cameraBtnOnOff = View.VISIBLE;
+                        modemCdStr = Common.MODEM_INFO_NONE;
+                    }
+                    modemCd.setText(modemCdStr);
+                    modemCameraBtn.setVisibility(cameraBtnOnOff);
 
                 } else {
-                    Toast.makeText(MeterInfoDetailActivity.this, "상세 정보를 가져올 수 없습니다", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MeterInfoDetailActivity.this, Common.TOAST_MESSAGE_1,  Toast.LENGTH_LONG).show();
                 }
                 super.handleMessage(msg);
             } else {
@@ -141,15 +150,15 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
                 // 전력량계량기 이미지 파일명 저장
                 fileNameList.add(electDTO.getElectricityFilename());
                 // 모뎀정보 DTO 정보 설정
-                ModemDTO modelDTO = new ModemDTO();
+                ModemDTO ModemDTO = new ModemDTO();
 
-                modelDTO.setSerialCd(data.getString("serial_cd"));
-                modelDTO.setModemCd(data.getString("modem_cd"));
-                modelDTO.setModemFilename(data.getString("modem_filename"));
-                modelDTO.setModemSaveDate(data.getString("modem_save_date"));
-                electDTO.setModemDTO(modelDTO);
-                // 모뎀 이미지 파일명 저장
-                fileNameList.add(modelDTO.getModemFilename());
+                ModemDTO.setSerialCd(data.getString("serial_cd"));
+                ModemDTO.setModemCd(data.getString("modem_cd"));
+                ModemDTO.setModemFilename(data.getString("modem_filename"));
+                ModemDTO.setModemSaveDate(data.getString("modem_save_date"));
+                electDTO.setModemDTO(ModemDTO);
+                // 모뎀 바코드 이미지 설정안하기
+                // fileNameList.add(ModemDTO.getModemFilename());
                 // 전처리 과정 DTO 정보 설정
                 JSONArray preFileNameList = data.getJSONArray("pre_filenames");
 
