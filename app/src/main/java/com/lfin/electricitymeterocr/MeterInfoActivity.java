@@ -13,6 +13,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -50,7 +51,7 @@ public class MeterInfoActivity extends AppCompatActivity {
 
     // 진행 상황을 출력하 프로그래스 바
     ProgressBar downloadView;
-
+    private Button homeBtn;
     // 화면 갱신을 위한 Handler 객체생성
     Handler handler = new Handler(Looper.getMainLooper()){
         public void handleMessage(Message msg){
@@ -69,8 +70,7 @@ public class MeterInfoActivity extends AppCompatActivity {
             try {
                 Log.e("인터넷 연결", "연결시도");
                 // 웹 Server url설정
-//                URL url = new URL("http://172.30.1.54:5000/list");
-                URL url = new URL("http://10.0.2.2:5000/list");
+                URL url = new URL(Common.SEVER_URL + "/list");
                 // URL객체를 HttpURLConnection 으로 형 변환
                 HttpURLConnection con = (HttpURLConnection)url.openConnection();
 
@@ -152,6 +152,9 @@ public class MeterInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meter_info);
+        // home 버튼
+        homeBtn = findViewById(R.id.homeBtn);
+
         // 초기화 작업
         itemList = new ArrayList<>();
 
@@ -180,6 +183,14 @@ public class MeterInfoActivity extends AppCompatActivity {
                 getInfoFrom(serialCd);
             }
         });
+
+        // homeBtn 클릭시 메인페이지로 이동
+        homeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backToHome();
+            }
+        });
     }
 
     private void getInfoFrom(String serial_id){
@@ -187,5 +198,8 @@ public class MeterInfoActivity extends AppCompatActivity {
         intent.putExtra("serial_id", serial_id);
         startActivity(intent);
     }
-
+    private void backToHome(){
+        Intent intent = new Intent(MeterInfoActivity.this , MainActivity.class);
+        startActivity(intent);
+    }
 }
