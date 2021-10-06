@@ -3,8 +3,10 @@ package com.lfin.electricitymeterocr;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -20,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -51,6 +55,9 @@ public class CameraActivity extends AppCompatActivity {
 
     //바코드 테스트
     private Button barcodeBtn;
+
+    // 진행 상황을 출력하 프로그래스 바
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +110,7 @@ public class CameraActivity extends AppCompatActivity {
             }
             Snackbar.make(getWindow().getDecorView().getRootView(), insertResult,
                     Snackbar.LENGTH_SHORT).show();
+            progressDialog.dismiss();
         }
     };
 
@@ -208,8 +216,19 @@ public class CameraActivity extends AppCompatActivity {
                 //사용한 스트림과 연결 해제
                 br.close();
                 con.disconnect();
-                json = sb.toString();
-                Log.e("result", json);
+
+                JSONObject json =  new JSONObject(sb.toString());
+                String result = json.get("result").toString();
+                Log.e("result", json.toString());
+
+                if(result.equals("true") || result.equals("True")){
+                    message.obj = true;
+                }else{
+                    message.obj = false;
+                }
+
+                message.what = 1;
+                handler.sendMessage(message);
 
             }catch(Exception e){
                 Log.e("삽입 예외", e.getMessage());
@@ -232,6 +251,14 @@ public class CameraActivity extends AppCompatActivity {
 
     private void getInsertInfo(){
         final Message message = new Message();
+
+        progressDialog = new ProgressDialog(CameraActivity.this);
+        progressDialog.setMessage("문자인식 중입니다..");
+        progressDialog.setCancelable(true);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
+
+        progressDialog.show();
+
 
         //데이터 유효성 검사
         message.what = 0;
@@ -272,8 +299,10 @@ public class CameraActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= 29) {
                     bitmap = (Bitmap) data.getExtras().get("data");
                 } else {
-                    bitmap = MediaStore.Images.Media.getBitmap(
-                            getContentResolver(), selectedImageUri);
+//                    bitmap = MediaStore.Images.Media.getBitmap(
+//                            getContentResolver(), selectedImageUri);
+
+                    bitmap = BitmapFactory.decodeStream(this.getContentResolver().openInputStream(selectedImageUri), null, null);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "이미지 가져오기 실패");

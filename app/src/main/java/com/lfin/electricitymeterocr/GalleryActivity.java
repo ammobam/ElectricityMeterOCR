@@ -95,7 +95,7 @@ public class GalleryActivity extends AppCompatActivity {
     private void getInsertFrom(){
 
         progressDialog = new ProgressDialog(GalleryActivity.this);
-        progressDialog.setMessage("ProgressDialog running...");
+        progressDialog.setMessage("문자인식 중입니다..");
         progressDialog.setCancelable(true);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
 

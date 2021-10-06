@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,6 +32,8 @@ import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.android.material.snackbar.Snackbar;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -58,6 +61,9 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
     private Button barcodeDataBtn;
 
     String serialId;
+
+    // 진행 상황을 출력하 프로그래스 바
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +108,7 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
             }
             Snackbar.make(getWindow().getDecorView().getRootView(), insertResult,
                     Snackbar.LENGTH_SHORT).show();
+            progressDialog.dismiss();
         }
     };
 
@@ -215,8 +222,19 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
                 //사용한 스트림과 연결 해제
                 br.close();
                 con.disconnect();
-                json = sb.toString();
-                Log.e("result", json);
+
+                JSONObject json =  new JSONObject(sb.toString());
+                String result = json.get("result").toString();
+                Log.e("result", json.toString());
+
+                if(result.equals("true") || result.equals("True")){
+                    message.obj = true;
+                }else{
+                    message.obj = false;
+                }
+
+                message.what = 1;
+                handler.sendMessage(message);
 
             }catch(Exception e){
                 Log.e("삽입 예외", e.getMessage());
@@ -237,6 +255,13 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
         //barcodeText.setText("12345678");
         String saveText = (String)barcodeText.getText();
 
+        progressDialog = new ProgressDialog(BarcodeDetectorActivity.this);
+        progressDialog.setMessage("문자인식 중입니다..");
+        progressDialog.setCancelable(true);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
+
+        progressDialog.show();
+
 
         if(!saveText.equals("BarcodeText")){
             builder.setTitle("바코드 정보 확인");
@@ -247,7 +272,7 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
             builder.setNegativeButton("취소",new DialogInterface.OnClickListener(){
                 @Override
                 public void onClick(DialogInterface dialog, int id){
-                    Snackbar.make(getWindow().getDecorView().getRootView(), "Cancel Click",
+                    Snackbar.make(getWindow().getDecorView().getRootView(), "저장 취소",
                             Snackbar.LENGTH_SHORT).show();
                 }
             });
@@ -255,11 +280,11 @@ public class BarcodeDetectorActivity extends AppCompatActivity {
             builder.setPositiveButton("저장",new DialogInterface.OnClickListener(){
                 @Override
                 public void onClick(DialogInterface dialog, int id){
-                    Snackbar.make(getWindow().getDecorView().getRootView(), "Save Click",
-                            Snackbar.LENGTH_SHORT).show();
+//                    Snackbar.make(getWindow().getDecorView().getRootView(), "Save Click",
+//                            Snackbar.LENGTH_SHORT).show();
                     new BarcodeDetectorActivity.barcodeThread().start();
 
-                    //backToHome();
+                    backToHome();
                 }
             });
 
