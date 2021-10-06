@@ -1,58 +1,61 @@
 package com.lfin.electricitymeterocr;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
 
 import com.lfin.electricitymeterocr.DTO.ElectricityMeterDTO;
 import com.lfin.electricitymeterocr.DTO.ElectricityPreprocessingDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class ViewPagerAdapter extends RecyclerView.Adapter<ViewHolderPage> {
-    // 파일명 리스트
-    private List<String> fileNameList;
-    // Handler
-    private Handler handler;
+public class ViewPagerAdapter extends PagerAdapter {
+    private Context mContext;
+    private ArrayList<Bitmap> imageList;
 
-    /**
-    * 생성자
-    * */
-    public ViewPagerAdapter(List<String> fileNameList, Handler handler) {
-        this.fileNameList = fileNameList;
-        this.handler = handler;
+    public ViewPagerAdapter(Context context, ArrayList<Bitmap> imageList)
+    {
+        this.mContext = context;
+        this.imageList = imageList;
     }
 
     @NonNull
     @Override
-    public ViewHolderPage onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
-        // item_viewpager.xml 의 view를 가져오기
-        View view = LayoutInflater.from(context).inflate(R.layout.item_viewpager, parent, false);
-        return new ViewHolderPage(view, handler);
+    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+        LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.item_viewpager, null);
+
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageBitmap(imageList.get(position));
+
+        container.addView(view);
+
+        return view;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolderPage holder, int position) {
-        if(holder instanceof ViewHolderPage){
-            ViewHolderPage viewHolder = (ViewHolderPage) holder;
-            viewHolder.onBind(fileNameList.get(position));
-        }
+    public int getCount() {
+        return imageList.size();
     }
 
-    /**
-    * 출력할 이미지의 수를 반환
-    * */
     @Override
-    public int getItemCount() {
-        return this.fileNameList.size();
+    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+        container.removeView((View)object);
     }
 
+    @Override
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object o) {
+        return (view == (View)o);
+    }
 }
