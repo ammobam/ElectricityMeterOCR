@@ -1,9 +1,12 @@
 package com.lfin.electricitymeterocr;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -24,16 +27,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MeterInfoDetailActivity extends AppCompatActivity {
     ElectricityMeterDTO electDTO;
-    private ViewPager2 viewPager2;
+    private ViewPager viewPager2;
     private Button homeBtn;
     private Button modemCameraBtn;
     private TextView serialCd;
@@ -55,10 +61,10 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
     // 화면 갱신을 위한 Handler 객체생성
     Handler handler = new Handler(Looper.getMainLooper()){
         public void handleMessage(Message msg) {
-            if (msg.what == 0) {
+            if(msg.what == 0) {
                 // textVeiw 갱신
                 if (result == true) {
-                    Log.e("handler 들어옴 ::","TextThread에 대한 Thread");
+                    Log.e("MeterInfoDetailActivity","TextThread 에 대한 Handler");
                     // 이 곳에 화면 갱신 내용을 작성
                     serialCd.setText(electDTO.getSerialCd());
                     supplyType.setText(electDTO.getSupplyType());
@@ -78,10 +84,12 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(MeterInfoDetailActivity.this, Common.TOAST_MESSAGE_1,  Toast.LENGTH_LONG).show();
                 }
-                super.handleMessage(msg);
             } else {
+                ArrayList<Bitmap> imageList = (ArrayList<Bitmap>)msg.obj;
+                viewPagerAdapter = new ViewPagerAdapter(MeterInfoDetailActivity.this, imageList);
+                viewPager2.setAdapter(viewPagerAdapter);
                 viewPagerAdapter.notifyDataSetChanged();
-                super.handleMessage(msg);
+
             }
         }
     };
@@ -151,13 +159,14 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
                 fileNameList.add(electDTO.getElectricityFilename());
                 // 모뎀정보 DTO 정보 설정
                 ModemDTO ModemDTO = new ModemDTO();
-
                 ModemDTO.setSerialCd(data.getString("serial_cd"));
                 ModemDTO.setModemCd(data.getString("modem_cd"));
                 ModemDTO.setModemFilename(data.getString("modem_filename"));
                 ModemDTO.setModemSaveDate(data.getString("modem_save_date"));
                 electDTO.setModemDTO(ModemDTO);
-                // 모뎀 바코드 이미지 설정안하기
+
+                // TODO 나중에 추가
+                // 모뎀 바코드 이미지 설정
                 // fileNameList.add(ModemDTO.getModemFilename());
                 // 전처리 과정 DTO 정보 설정
                 JSONArray preFileNameList = data.getJSONArray("pre_filenames");
@@ -180,14 +189,12 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
 
                 // 이미지슬라이드 설정
                 viewPager2 = findViewById(R.id.viewPager2);
-                viewPagerAdapter = new ViewPagerAdapter(fileNameList, handler);
-                viewPager2.setAdapter(viewPagerAdapter);
-                // imageSlide를 가로로 설정
-                viewPager2.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
-                // Handler 에게 메시지 전송
                 handler.sendEmptyMessage(0);
-
+                // 이미지 다운로드 스레드 실행
+                ImageThread th = new ImageThread(fileNameList);
+                th.start();
+                // Handler 에게 메시지 전송
             }catch (Exception e){
                 // console창으로 메시지를 확인
                 // 태그, getLocalizedMessage()
@@ -220,12 +227,8 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
             }
         });
 
-
-
-
         // MeterInfoActivity에서 전달한 serial_id 데이터 읽어오기
         String serialId = getIntent().getStringExtra("serial_id");
-
 
         // homeBtn 클릭시 메인페이지로 이동
         modemCameraBtn.setOnClickListener(new View.OnClickListener() {
@@ -246,6 +249,37 @@ public class MeterInfoDetailActivity extends AppCompatActivity {
     private void backToHome(){
         Intent intent = new Intent(MeterInfoDetailActivity.this , MainActivity.class);
         startActivity(intent);
+    }
+
+    // 다운로드 받을 Thread 클래스
+    class ImageThread extends Thread {
+        // 다운로드 받을 이미지명
+        List<String> fileNameList;
+
+        public ImageThread(List<String> fileNameList){
+            this.fileNameList = fileNameList;
+        }
+
+        public void run() {
+            ArrayList<Bitmap> imageList = new ArrayList<>();
+            try {
+                for(String fileName : fileNameList) {
+                    // 이미지 다운로드를 스트림 생성
+                    InputStream inputStream = new URL(Common.SEVER_URL + "/detailimagedownload/" + fileName).openStream();
+                    // 이미지 다운로드
+                    Bitmap bit = BitmapFactory.decodeStream(inputStream);
+                    inputStream.close();
+
+                    imageList.add(bit);
+                }
+                Message msg = new Message();
+                msg.what = 1;
+                msg.obj = imageList;
+                handler.sendMessage(msg);
+            }catch(Exception e){
+                Log.e("이미지 다운로드", e.toString());
+            }
+        }
     }
 
 }
