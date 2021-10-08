@@ -124,7 +124,7 @@ public class CameraActivity extends AppCompatActivity {
             Message message = new Message();
             try{
                 //다운로드 받을 주소 생성
-                URL url = new URL(Common.SEVER_URL +"/meterimage");
+                URL url = new URL(Common.SEVER_URL +"/insertElectricityMeter");
                 //URL에 연결
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setUseCaches(false);

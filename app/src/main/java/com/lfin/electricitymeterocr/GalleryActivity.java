@@ -59,7 +59,8 @@ public class GalleryActivity extends AppCompatActivity {
     private Button galleryBtn;
     //불러온 이미지 저장
     private Button insertaBtn;
-
+    // 인식된 제조번호
+    private String serial_cd;
     //갤러리에서 불러온 이미지 정보
     Uri selectedImage;
 
@@ -83,7 +84,6 @@ public class GalleryActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
         filenameView = findViewById(R.id.filenameView);
-
     }
 
     private void getImageFromGallery(){
@@ -94,34 +94,34 @@ public class GalleryActivity extends AppCompatActivity {
 
     private void getInsertFrom(){
 
-        progressDialog = new ProgressDialog(GalleryActivity.this);
-        progressDialog.setMessage("문자인식 중입니다..");
-        progressDialog.setCancelable(true);
-        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
-
-        progressDialog.show();
-
-
         final Message message = new Message();
-
-
 
         //데이터 유효성 검사
         message.what = 0;
+        Log.e("imageView", String.valueOf(imageView));
 
-        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
-        Bitmap bitmap = drawable.getBitmap();
+        if(imageView != null){
+//            BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+//            Bitmap bitmap = drawable.getBitmap();
 
+//        if(bitmap != null) {
+            progressDialog = new ProgressDialog(GalleryActivity.this);
+            progressDialog.setMessage("문자인식 중입니다..");
+            progressDialog.setCancelable(true);
+            progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
 
-        if(bitmap != null) {
+            progressDialog.show();
 
             // Thread를 만들어서 실행
             new GalleryActivity.galleryThread().start();
 
         }else{
             message.obj = "이미지를 선택하세요";
-            message.what = 0;
-            handler.sendMessage(message);
+            message.what = -1;
+
+//            Snackbar.make(getWindow().getDecorView().getRootView(), "이미지를 선택하세요",
+//                    Snackbar.LENGTH_SHORT).show();
+             handler.sendMessage(message);
         }
 
     }
@@ -134,6 +134,9 @@ public class GalleryActivity extends AppCompatActivity {
             String insertResult;
 
             switch(msg.what) {
+                case -1:
+                    insertResult = (String)msg.obj;
+                    break;
                 case 0:
                     insertResult = (String)msg.obj;
                     break;
@@ -141,6 +144,8 @@ public class GalleryActivity extends AppCompatActivity {
                     boolean result = (Boolean)msg.obj;
                     if (result == true) {
                         insertResult = "삽입 성공";
+                        // 삽입 성공 시 상세화면으로 이동
+                        getInfoFrom(serial_cd);
                     }else {
                         insertResult = "삽입 실패";
                     }
@@ -156,6 +161,12 @@ public class GalleryActivity extends AppCompatActivity {
         }
     };
 
+    // 삽입 성공시 삽입화면으로 이동
+    private void getInfoFrom(String serial_id){
+        Intent intent = new Intent(GalleryActivity.this , MeterInfoDetailActivity.class);
+        intent.putExtra("serial_id", serial_id);
+        startActivity(intent);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -195,8 +206,6 @@ public class GalleryActivity extends AppCompatActivity {
         }
 
     }
-
-
 
     // 이미지를 업로드 할 Thread 클래스
     class galleryThread extends Thread {
@@ -302,6 +311,7 @@ public class GalleryActivity extends AppCompatActivity {
 
                 JSONObject json =  new JSONObject(sb.toString());
                 String result = json.get("result").toString();
+                serial_cd = json.get("serial_cd").toString();
                 Log.e("result", json.toString());
 
                 if(result.equals("true") || result.equals("True")){
